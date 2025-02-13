@@ -37,7 +37,8 @@ class _LoginPageState extends State<HalamanAwal> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color.fromARGB(255, 183, 161, 236),
+        backgroundColor: Colors.blue,
+        // backgroundColor: Color.fromARGB(255, 183, 161, 236),
         title: Text('Selamat Datang',),
         centerTitle: true,
       ),
@@ -49,17 +50,17 @@ class _LoginPageState extends State<HalamanAwal> {
             ClipRRect(
               borderRadius: BorderRadius.circular(160.0),
               child: Image.asset(
-                'assets/images/login.jpg',
+                'assets/images/login.png',
                 height: 200,
                 width: 300,
                 fit: BoxFit.cover,
               ),
             ),
+            SizedBox(height: 50.0),
             Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                SizedBox(height: 30.0),
                 ElevatedButton(
                   onPressed: () {
                     Navigator.push(context,
@@ -67,7 +68,7 @@ class _LoginPageState extends State<HalamanAwal> {
                   },
                   child: Text('Masuk', style: TextStyle(color: Colors.white),),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Color.fromARGB(255, 183, 161, 236),
+                    backgroundColor: Colors.blue,
                   ),
                 )
               ],

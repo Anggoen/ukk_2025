@@ -49,7 +49,7 @@ class _KasirFlutterState extends State<KasirFlutter> {
           showUnselectedLabels: true,
           currentIndex: _selectedIndex, // menunjukkn index yang dipilih
           selectedItemColor: Colors.black,
-          unselectedItemColor: Color.fromARGB(255, 183, 161, 236),
+          unselectedItemColor: Colors.blue,
           onTap: _onItemTapped,
           items: <BottomNavigationBarItem>[
             BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
@@ -74,7 +74,13 @@ class ProdukPage extends StatefulWidget {
 class _ProdukPageState extends State<ProdukPage> {
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Halaman Produk'),
+        centerTitle: true,
+        backgroundColor: Colors.blue,
+      ),
+    );
   }
 }
 

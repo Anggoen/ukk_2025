@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:ukk_2025/kasir.dart';
 
+void main () {
+  runApp(LoginPage());
+}
 
 class LoginPage extends StatefulWidget {
  
@@ -10,46 +12,42 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  // final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController Username = TextEditingController();
   final TextEditingController Password = TextEditingController();
 
-  Future<void> login(BuildContext context)  async {
-    if (!_formKey.currentState!.validate()) {
-      return; // jika form tidak valid, hentikan proses login
-    }
+  // final List<Map<String, String>> users = [
+  //   {'username': 'anggun', 'password':'admin1'}
+  // ];
 
-    final String username = Username.text.trim();
-    final String password = Password.text.trim();
+  // Future<void> login(BuildContext context)  async {
+  //   if (!_formKey.currentState!.validate()) {
+  //     return; // jika form tidak valid, hentikan proses login
+  //   }
 
-    try {
-      final response = await Supabase.instance.client
-      .from('user')
-      .select()
-      .eq('username', username)
-      .eq('password', password)
-      .single();
+  //   final String username = Username.text.trim();
+  //   final String password = Password.text.trim();
 
-      if (response.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Username dan Password Salah'),),
-        );
-      } else {
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => KasirPage()));
-      }
-    } catch (error) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Terjadi kesalahan: $error'))
-      );
-    }
-  }
+  //  final user = users.firstWhere(
+  //   (user) => ['username'] == username && user['password'] == password,
+  //   orElse: () => {},
+  //  );
+
+  //  if (user.isEmpty) {
+  //   ScaffoldMessenger.of(context).showSnackBar(
+  //     SnackBar(content: Text('Username dan password salah'),),
+  //   );
+  //  } else {
+  //   Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) =>KasirPage()));
+  //  }}
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('Halaman Login'),
-        backgroundColor: Color.fromARGB(255, 183, 161, 236),
+        backgroundColor: Colors.blue,
+        // backgroundColor: Color.fromARGB(255, 183, 161, 236),
         centerTitle: true,
       ),
       body: Padding(
@@ -64,7 +62,7 @@ class _LoginPageState extends State<LoginPage> {
                   borderRadius: BorderRadius.circular(160.0),
                   child: Image.asset(
                     'assets/images/login2.png',
-                    height: 250,
+                    height: 300,
                     width: 300,
                     fit: BoxFit.cover,
                   ),
@@ -96,14 +94,18 @@ class _LoginPageState extends State<LoginPage> {
                             ),
                           ),
                           Padding(
-                            padding: const EdgeInsets.all(8.0),
+                            padding: const EdgeInsets.all(10.0),
                             child: Column(
                               children: [
                                 SizedBox(height: 20.0),
                                 Form(
+                                  // key: _formKey,
                                     child: Column(
                                   children: [
                                     TextFormField(
+                                      // controller: Username,
+                                      textAlign: TextAlign.start,
+                                      maxLines: 1,
                                       decoration: InputDecoration(
                                         labelText: 'Username',
                                         hintText: 'Masukkan Username kamu',
@@ -120,8 +122,12 @@ class _LoginPageState extends State<LoginPage> {
                                         return null;
                                       },
                                     ),
-                                    const SizedBox(height: 10.0),
+                                    const SizedBox(height: 20.0),
                                     TextFormField(
+                                      obscureText: true,
+                                      // controller: Password,
+                                      textAlign: TextAlign.start,
+                                      maxLines: 1,
                                       decoration: InputDecoration(
                                         labelText: 'Password',
                                         hintText: 'Masukkkan Password kamu',
@@ -139,7 +145,7 @@ class _LoginPageState extends State<LoginPage> {
                                       },
                                     ),
                                     SizedBox(
-                                      height: 15.0,
+                                      height: 20.0,
                                     ),
                                     ElevatedButton(
                                       onPressed: () {
