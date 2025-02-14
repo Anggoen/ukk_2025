@@ -38,7 +38,7 @@ class _LoginPageState extends State<HalamanAwal> {
       appBar: AppBar(
         backgroundColor: Colors.blue,
         // backgroundColor: Color.fromARGB(255, 183, 161, 236),
-        title: Text('Selamat Datang',),
+        title: Text('Selamat Datang',style: TextStyle(color: Colors.white),),
         centerTitle: true,
       ),
       body: Center(

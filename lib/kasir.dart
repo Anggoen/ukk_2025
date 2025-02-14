@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:ukk_2025/user/deleteUser.dart';
+import 'package:ukk_2025/user/editUser.dart';
+import 'package:ukk_2025/user/insertUser.dart';
 
 void main() {
   runApp(KasirPage());
@@ -78,7 +82,10 @@ class _ProdukPageState extends State<ProdukPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Halaman Produk'),
+        title: Text(
+          'Halaman Produk',
+          style: TextStyle(color: Colors.white),
+        ),
         centerTitle: true,
         backgroundColor: Colors.blue,
       ),
@@ -131,7 +138,7 @@ class _DetailPenjualanState extends State<DetailPenjualan> {
   }
 }
 
-// halaman user 
+// halaman user
 class UserPage extends StatefulWidget {
   const UserPage({super.key});
 
@@ -140,8 +147,120 @@ class UserPage extends StatefulWidget {
 }
 
 class _UserPageState extends State<UserPage> {
+  List<Map<String, dynamic>> user = [];
+
+  @override
+  void initState() {
+    super.initState();
+    fetchUsers();
+  }
+
+  Future<void> fetchUsers() async {
+    final response = await Supabase.instance.client.from('user').select();
+
+    setState(() {
+      user = List<Map<String, dynamic>>.from(response);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          'Halaman User',
+          style: TextStyle(color: Colors.white),
+        ),
+        centerTitle: true,
+        actions: [
+          IconButton(
+            onPressed: fetchUsers,
+            icon: Icon(Icons.refresh, color: Colors.white),
+          ),
+        ],
+        backgroundColor: Colors.blue,
+      ),
+      body: user.isEmpty
+          ? Center(child: CircularProgressIndicator())
+          : ListView.builder(
+              itemCount: user.length,
+              itemBuilder: (context, index) {
+                final book = user[index];
+                return Container(
+                  margin: EdgeInsets.all(10.0),
+                  decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(15),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey,
+                          blurRadius: 7,
+                          offset: Offset(0, 3),
+                        )
+                      ]),
+                  child: ListTile(
+                      title: Text(
+                        book['username'] ?? 'No username',
+                        style: TextStyle(fontSize: 18),
+                      ),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            book['password'] ?? 'No password',
+                            style: TextStyle(fontSize: 14),
+                          ),
+                        ],
+                      ),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                              onPressed: () {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            EditUserPage(user: book)));
+                              },
+                              icon: Icon(Icons.edit, color: Colors.blue)),
+                          IconButton(
+                              onPressed: () {
+                                deleteUser(book['id'], context);
+                              },
+                              icon: Icon(Icons.delete)),
+                        ],
+                      )),
+                );
+              }),
+      floatingActionButton: Padding(
+        padding: EdgeInsets.all(16.0),
+        child: ElevatedButton(
+          onPressed: () async {
+            final result = await Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => RegisterPage()),
+            );
+
+            //jika result true maka refresh halaman user dengan kode berikut
+            if (result == true) {
+              fetchUsers();
+            }
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.blue,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.add, color: Colors.white),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
