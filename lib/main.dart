@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:ukk_2025/login.dart';
-// import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:ukk_2025/login.dart'; 
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -51,7 +50,7 @@ class _LoginPageState extends State<HalamanAwal> {
               borderRadius: BorderRadius.circular(160.0),
               child: Image.asset(
                 'assets/images/login.png',
-                height: 200,
+                height: 300,
                 width: 300,
                 fit: BoxFit.cover,
               ),

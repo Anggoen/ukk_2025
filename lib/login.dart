@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:ukk_2025/kasir.dart';
 
 void main () {
@@ -12,34 +13,43 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  // final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController Username = TextEditingController();
   final TextEditingController Password = TextEditingController();
 
-  // final List<Map<String, String>> users = [
-  //   {'username': 'anggun', 'password':'admin1'}
-  // ];
+  Future<void> login(BuildContext context) async {
+    if(!_formKey.currentState!.validate()) {
+      return;
+    }
 
-  // Future<void> login(BuildContext context)  async {
-  //   if (!_formKey.currentState!.validate()) {
-  //     return; // jika form tidak valid, hentikan proses login
-  //   }
+    final String username = Username.text.trim();
+    final String password = Password.text.trim();
 
-  //   final String username = Username.text.trim();
-  //   final String password = Password.text.trim();
+    try {
+      final response = await Supabase.instance.client
+      .from('user')
+      .select()
+      .eq('username', username)
+      .eq('password', password)
+      .single();
 
-  //  final user = users.firstWhere(
-  //   (user) => ['username'] == username && user['password'] == password,
-  //   orElse: () => {},
-  //  );
+      if(response.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Username atau password salah'))
+      );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Berhasil masuk ke akun'))
+        );
 
-  //  if (user.isEmpty) {
-  //   ScaffoldMessenger.of(context).showSnackBar(
-  //     SnackBar(content: Text('Username dan password salah'),),
-  //   );
-  //  } else {
-  //   Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) =>KasirPage()));
-  //  }}
+        Navigator.push(context, MaterialPageRoute(builder: (context) => KasirPage()));
+      }
+    } catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Username atau password salah: $error'))
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -99,11 +109,11 @@ class _LoginPageState extends State<LoginPage> {
                               children: [
                                 SizedBox(height: 20.0),
                                 Form(
-                                  // key: _formKey,
+                                  key: _formKey,
                                     child: Column(
                                   children: [
                                     TextFormField(
-                                      // controller: Username,
+                                      controller: Username,
                                       textAlign: TextAlign.start,
                                       maxLines: 1,
                                       decoration: InputDecoration(
@@ -125,7 +135,7 @@ class _LoginPageState extends State<LoginPage> {
                                     const SizedBox(height: 20.0),
                                     TextFormField(
                                       obscureText: true,
-                                      // controller: Password,
+                                      controller: Password,
                                       textAlign: TextAlign.start,
                                       maxLines: 1,
                                       decoration: InputDecoration(
@@ -149,11 +159,7 @@ class _LoginPageState extends State<LoginPage> {
                                     ),
                                     ElevatedButton(
                                       onPressed: () {
-                                        Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                                builder: (context) =>
-                                                    KasirPage()));
+                                        login(context);
                                       },
                                       child: Text(
                                         'Login',

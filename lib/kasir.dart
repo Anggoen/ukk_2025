@@ -32,6 +32,7 @@ class _KasirFlutterState extends State<KasirFlutter> {
     PelangganPage(),
     PenjualanPage(),
     DetailPenjualan(),
+    UserPage(),
   ];
 
   void _onItemTapped(int index) {
@@ -58,6 +59,7 @@ class _KasirFlutterState extends State<KasirFlutter> {
             BottomNavigationBarItem(
                 icon: Icon(Icons.shopping_cart), label: 'Penjualan'),
             BottomNavigationBarItem(icon: Icon(Icons.note), label: 'Detail'),
+            BottomNavigationBarItem(icon: Icon(Icons.people), label: 'User'),
           ]),
     );
   }
@@ -123,6 +125,21 @@ class DetailPenjualan extends StatefulWidget {
 }
 
 class _DetailPenjualanState extends State<DetailPenjualan> {
+  @override
+  Widget build(BuildContext context) {
+    return const Placeholder();
+  }
+}
+
+// halaman user 
+class UserPage extends StatefulWidget {
+  const UserPage({super.key});
+
+  @override
+  State<UserPage> createState() => _UserPageState();
+}
+
+class _UserPageState extends State<UserPage> {
   @override
   Widget build(BuildContext context) {
     return const Placeholder();
