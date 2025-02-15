@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:ukk_2025/login.dart'; 
+import 'package:ukk_2025/kasir.dart';
+import 'package:ukk_2025/login.dart';
+
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -19,7 +21,9 @@ class MyApp extends StatelessWidget {
     return const MaterialApp(
       title: 'kasir',
       debugShowCheckedModeBanner: false,
-      home: HalamanAwal(),
+      home: KasirPage(),
+      // home: InsertProduk(),
+      // home: HalamanAwal(),
     );
   }
 }

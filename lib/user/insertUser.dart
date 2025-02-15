@@ -68,58 +68,78 @@ class _RegisterPageState extends State<RegisterPage> {
       ),
       body: Padding(
         padding: EdgeInsets.all(16.0),
-        child: Container(
-          decoration: BoxDecoration(borderRadius: BorderRadius.circular(16.0)),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              children: [
-                TextFormField(
-                  controller: _username,
-                  maxLength: 10,
-                  decoration: InputDecoration(
-                    labelText: 'Username',
-                    hintText: 'Masukkan username baru',
-                    prefixIcon: Icon(Icons.person),
+        child: Center(
+          child: Container(
+            decoration: BoxDecoration(borderRadius: BorderRadius.circular(16.0)),
+            child: Container(
+              decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(10),
+                  boxShadow: [
+                    BoxShadow(
+                        color: Colors.grey, blurRadius: 7, offset: Offset(0, 3))
+                  ]),
+              width: 300,
+              height: 300,
+              child: Padding(
+                padding: const EdgeInsets.only(
+                    top: 40, bottom: 10, left: 10, right: 10),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      TextFormField(
+                        controller: _username,
+                        maxLength: 10,
+                        decoration: InputDecoration(
+                            labelText: 'Username',
+                            hintText: 'Masukkan username baru',
+                            prefixIcon: Icon(Icons.person),
+                            border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10))),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                              content: Text('Masukkan username dulu'),
+                            ));
+                          }
+                          return null;
+                        },
+                      ),
+                      SizedBox(height: 10.0),
+                      TextFormField(
+                          controller: _password,
+                          maxLength: 10,
+                          decoration: InputDecoration(
+                              labelText: 'Password',
+                              hintText: 'Masukkan Password baru',
+                              prefixIcon: Icon(Icons.key),
+                              border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10))),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text('Masukkan password dulu')),
+                              );
+                            }
+                            return null;
+                          }),
+                      SizedBox(height: 30.0),
+                      ElevatedButton(
+                        onPressed: () {
+                          if (_formKey.currentState!.validate()) _tambahuser();
+                        },
+                        style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.blue),
+                        child: Text(
+                          'Tambah',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                    ],
                   ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                        content: Text('Masukkan username dulu'),
-                      ));
-                    }
-                    return null;
-                  },
                 ),
-                SizedBox(height: 10.0),
-                TextFormField(
-                  controller: _password,
-                    maxLength: 10,
-                    decoration: InputDecoration(
-                      labelText: 'Password',
-                      hintText: 'Masukkan Password baru',
-                      prefixIcon: Icon(Icons.key),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Masukkan password dulu')),
-                        );
-                      }
-                      return null;
-                    }),
-                SizedBox(height: 20.0),
-                ElevatedButton(
-                  onPressed: () {
-                    if (_formKey.currentState!.validate()) _tambahuser();
-                  },
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
-                  child: Text(
-                    'Tambah User',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                ),
-              ],
+              ),
             ),
           ),
         ),

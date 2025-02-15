@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:ukk_2025/kasir.dart';
 
-Future<void> deleteUser( int id, BuildContext context) async {
+Future<void> deleteProduk(int idProduk, BuildContext anggun) async {
   final supabase = Supabase.instance.client;
 
-  //kode untuk menampilkan dialog konirmasi terlebih dahulu sebelum dihapus
+  //kode untuk menampilkan dialog konfirmasi terlebih dahulu sebelum dihapus dengan alert dialog
   bool? confirmDelete = await showDialog(
-    context: context,
-    builder: (context) {
+    context: anggun,
+    builder: (anggun) {
       return AlertDialog(
         elevation: 20,
         backgroundColor: Colors.blue,
@@ -17,7 +17,7 @@ Future<void> deleteUser( int id, BuildContext context) async {
           width: 50,
           child: Center(
             child: Text(
-              'Anda yakin ingin menghapus user ini?',
+              'Anda yakin ingin menghapus produk ini?',
               style: TextStyle(fontSize: 24.0, color: Colors.white),
             ),
           ),
@@ -25,7 +25,7 @@ Future<void> deleteUser( int id, BuildContext context) async {
         actions: [
           ElevatedButton(
             onPressed: () {
-              Navigator.pop(context, true);
+              Navigator.pop(anggun, true);
             },
             child: Text(
               'Hapus',
@@ -35,7 +35,7 @@ Future<void> deleteUser( int id, BuildContext context) async {
           ),
           ElevatedButton(
             onPressed: () {
-              Navigator.of(context).pop(false);
+              Navigator.of(anggun).pop(false);
             },
             child: Text(
               'Batal',
@@ -44,22 +44,20 @@ Future<void> deleteUser( int id, BuildContext context) async {
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.white,
             ),
-          ),
+          )
         ],
       );
     },
   );
 
-  // jika user memilih dihapus, maka lakukan perintah penghapusan ini
-  if (confirmDelete == true) {
-    final response =
-     await supabase.from('user').delete().eq('id', id);
+  //jika user memilih dihapus, maka lakukan perintah pengahpusan ini
+  if(confirmDelete == true) {
+    final response = await supabase.from('produk').delete().eq('idProduk', idProduk);
 
     if (response != null) {
-      print('Hapus error : ${response.error!.messsage}');
+      print('Hapus error : ${response.error!.message}');
     } else {
-      Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (context) => KasirPage()));
+      Navigator.pushReplacement(anggun, MaterialPageRoute(builder: (anggun) => KasirPage()));
     }
   }
 }

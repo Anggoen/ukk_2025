@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:ukk_2025/produk/deleteProduk.dart';
+import 'package:ukk_2025/produk/editProduk.dart';
+import 'package:ukk_2025/produk/insertProduk.dart';
 import 'package:ukk_2025/user/deleteUser.dart';
 import 'package:ukk_2025/user/editUser.dart';
 import 'package:ukk_2025/user/insertUser.dart';
@@ -78,6 +81,22 @@ class ProdukPage extends StatefulWidget {
 }
 
 class _ProdukPageState extends State<ProdukPage> {
+  List<Map<String, dynamic>> produkAnggun = [];
+
+  @override
+  void initState() {
+    super.initState();
+    fetchproduk();
+  }
+
+  Future<void> fetchproduk() async {
+    final anggoen = await Supabase.instance.client.from('produk').select();
+
+    setState(() {
+      produkAnggun = List<Map<String, dynamic>>.from(anggoen);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -88,6 +107,94 @@ class _ProdukPageState extends State<ProdukPage> {
         ),
         centerTitle: true,
         backgroundColor: Colors.blue,
+        actions: [
+          IconButton(
+              onPressed: fetchproduk,
+              icon: Icon(Icons.refresh),
+              color: Colors.white),
+        ],
+      ),
+      body: produkAnggun.isEmpty
+          ? Center(child: CircularProgressIndicator())
+          : ListView.builder(
+              itemCount: produkAnggun.length,
+              itemBuilder: (context, index) {
+                final book = produkAnggun[index];
+                return Container(
+                  margin: EdgeInsets.all(10.0),
+                  decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(15.0),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey,
+                          blurRadius: 7,
+                          offset: Offset(0, 3),
+                        )
+                      ]),
+                  child: ListTile(
+                    title: Text(
+                      book['namaProduk'] ?? 'No namaProduk',
+                      style: TextStyle(fontSize: 16),
+                    ),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                         '${book['harga']}',
+                          style: TextStyle(fontSize: 14),
+                        ),
+                        Text(
+                          ' ${book['stok']}',
+                          style: TextStyle(fontSize: 10),
+                        ),
+                      ],
+                    ),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                            onPressed: () {
+                               Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                           EditProdukPage(produk: book)));
+                            },
+                            icon: Icon(Icons.edit, color: Colors.blue)),
+                        IconButton(onPressed: () {
+                          deleteProduk(book['idProduk'], context);
+                        }, icon: Icon(Icons.delete))
+                      ],
+                    ),
+                  ),
+                );
+              }),
+      floatingActionButton: Padding(
+        padding: EdgeInsets.all(16.0),
+        child: ElevatedButton(
+          onPressed: () async {
+            final result = await Navigator.push(context,
+                MaterialPageRoute(builder: (context) => InsertProduk()));
+
+            // jika result true maka refresh halaman prduk dengan kode berikut
+            if (result == true) {
+              fetchproduk();
+            }
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.blue,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.add, color: Colors.white),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -220,8 +327,8 @@ class _UserPageState extends State<UserPage> {
                                 Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                        builder: (context) =>
-                                            EditUserPage(user: book)));
+                                       
+                                         builder: (context) => EditUserPage(user: book)));
                               },
                               icon: Icon(Icons.edit, color: Colors.blue)),
                           IconButton(

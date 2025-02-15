@@ -5,7 +5,10 @@ import 'package:ukk_2025/kasir.dart';
 class EditUserPage extends StatefulWidget {
   final Map<String, dynamic> user;
 
+ 
+
   EditUserPage({required this.user});
+   
 
   @override
   State<EditUserPage> createState() => _EditUserPageState();
