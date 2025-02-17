@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:ukk_2025/kasir.dart';
+import 'package:ukk_2025/Admin/kasir.dart';
 
-Future<void> deleteProduk(int idProduk, BuildContext anggun) async {
+Future<void> deleteUser( int id, BuildContext context) async {
   final supabase = Supabase.instance.client;
 
-  //kode untuk menampilkan dialog konfirmasi terlebih dahulu sebelum dihapus dengan alert dialog
+  //kode untuk menampilkan dialog konirmasi terlebih dahulu sebelum dihapus
   bool? confirmDelete = await showDialog(
-    context: anggun,
-    builder: (anggun) {
+    context: context,
+    builder: (context) {
       return AlertDialog(
         elevation: 20,
         backgroundColor: Colors.blue,
@@ -17,7 +17,7 @@ Future<void> deleteProduk(int idProduk, BuildContext anggun) async {
           width: 50,
           child: Center(
             child: Text(
-              'Anda yakin ingin menghapus produk ini?',
+              'Anda yakin ingin menghapus user ini?',
               style: TextStyle(fontSize: 24.0, color: Colors.white),
             ),
           ),
@@ -25,7 +25,7 @@ Future<void> deleteProduk(int idProduk, BuildContext anggun) async {
         actions: [
           ElevatedButton(
             onPressed: () {
-              Navigator.pop(anggun, true);
+              Navigator.pop(context, true);
             },
             child: Text(
               'Hapus',
@@ -35,7 +35,7 @@ Future<void> deleteProduk(int idProduk, BuildContext anggun) async {
           ),
           ElevatedButton(
             onPressed: () {
-              Navigator.of(anggun).pop(false);
+              Navigator.of(context).pop(false);
             },
             child: Text(
               'Batal',
@@ -44,20 +44,22 @@ Future<void> deleteProduk(int idProduk, BuildContext anggun) async {
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.white,
             ),
-          )
+          ),
         ],
       );
     },
   );
 
-  //jika user memilih dihapus, maka lakukan perintah pengahpusan ini
-  if(confirmDelete == true) {
-    final response = await supabase.from('produk').delete().eq('idProduk', idProduk);
+  // jika user memilih dihapus, maka lakukan perintah penghapusan ini
+  if (confirmDelete == true) {
+    final response =
+     await supabase.from('user').delete().eq('id', id);
 
     if (response != null) {
-      print('Hapus error : ${response.error!.message}');
+      print('Hapus error : ${response.error!.messsage}');
     } else {
-      Navigator.pushReplacement(anggun, MaterialPageRoute(builder: (anggun) => KasirPage()));
+      Navigator.pushReplacement(
+          context, MaterialPageRoute(builder: (context) => KasirAdminPage()));
     }
   }
 }

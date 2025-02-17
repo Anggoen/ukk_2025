@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:ukk_2025/kasir.dart';
+import 'package:ukk_2025/Admin/kasir.dart';
 
 class EditProdukPage extends StatefulWidget {
   final Map<String, dynamic> produk;
@@ -28,7 +28,7 @@ class _EditProdukPageState extends State<EditProdukPage> {
 
   //fungsi untuk memperbarui produk di supabase
   Future<void> editProduk() async {
-     if (!_formKey.currentState!.validate()) {
+    if (!_formKey.currentState!.validate()) {
       return;
     }
     final response = await Supabase.instance.client
@@ -52,7 +52,7 @@ class _EditProdukPageState extends State<EditProdukPage> {
       );
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => KasirPage()),
+        MaterialPageRoute(builder: (context) => KasirAdminPage()),
       );
     }
   }

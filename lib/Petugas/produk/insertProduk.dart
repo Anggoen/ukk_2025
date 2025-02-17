@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:ukk_2025/kasir.dart';
+import 'package:ukk_2025/Petugas/kasir.dart';
 
 class InsertProduk extends StatefulWidget {
   const InsertProduk({super.key});
@@ -57,7 +57,7 @@ class _InsertProdukState extends State<InsertProduk> {
       Navigator.pop(context, true);
 
       Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (context) => KasirPage()));
+          context, MaterialPageRoute(builder: (context) => KasirPetugasPage()));
     }
   }
 
@@ -108,7 +108,8 @@ class _InsertProdukState extends State<InsertProduk> {
                                         validator: (value) {
                                           if(value == null || value.isEmpty) {
                                             return 'Masukkan Nama Produk';
-                                          }
+                                          } 
+                                           return null;
                                         },
                               ),
                               SizedBox(height: 10),

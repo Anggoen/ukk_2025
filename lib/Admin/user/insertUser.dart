@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:ukk_2025/kasir.dart';
+import 'package:ukk_2025/Admin/kasir.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -13,6 +13,7 @@ class _RegisterPageState extends State<RegisterPage> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _username = TextEditingController();
   final TextEditingController _password = TextEditingController();
+  TextEditingController _role = TextEditingController();
 
   Future<void> _tambahuser() async {
     if (!_formKey.currentState!.validate()) {
@@ -21,6 +22,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
     final username = _username.text;
     final password = _password.text;
+    final role = _role.text;
 
     //validasi input
     if (username.isEmpty || password.isEmpty) {
@@ -33,6 +35,7 @@ class _RegisterPageState extends State<RegisterPage> {
       {
         'username': username,
         'password': password,
+        'role': role,
       }
     ]);
 
@@ -48,11 +51,12 @@ class _RegisterPageState extends State<RegisterPage> {
       //setelah form seleasi maka langsung haous kolom input nya
       _username.clear();
       _password.clear();
+      _role.clear();
 
       Navigator.pop(context, true);
 
       Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (context) => KasirPage()));
+          context, MaterialPageRoute(builder: (context) => KasirAdminPage()));
     }
   }
 
@@ -70,7 +74,8 @@ class _RegisterPageState extends State<RegisterPage> {
         padding: EdgeInsets.all(16.0),
         child: Center(
           child: Container(
-            decoration: BoxDecoration(borderRadius: BorderRadius.circular(16.0)),
+            decoration:
+                BoxDecoration(borderRadius: BorderRadius.circular(16.0)),
             child: Container(
               decoration: BoxDecoration(
                   color: Colors.white,
@@ -80,7 +85,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         color: Colors.grey, blurRadius: 7, offset: Offset(0, 3))
                   ]),
               width: 300,
-              height: 300,
+              height: 350,
               child: Padding(
                 padding: const EdgeInsets.only(
                     top: 40, bottom: 10, left: 10, right: 10),
@@ -90,7 +95,6 @@ class _RegisterPageState extends State<RegisterPage> {
                     children: [
                       TextFormField(
                         controller: _username,
-                        maxLength: 10,
                         decoration: InputDecoration(
                             labelText: 'Username',
                             hintText: 'Masukkan username baru',
@@ -99,9 +103,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                 borderRadius: BorderRadius.circular(10))),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                              content: Text('Masukkan username dulu'),
-                            ));
+                            return 'Masukkan Username';
                           }
                           return null;
                         },
@@ -118,9 +120,22 @@ class _RegisterPageState extends State<RegisterPage> {
                                   borderRadius: BorderRadius.circular(10))),
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text('Masukkan password dulu')),
-                              );
+                              return 'Masukkan Password';
+                            }
+                            return null;
+                          }),
+                      SizedBox(height: 10.0),
+                      TextFormField(
+                          controller: _role,
+                          decoration: InputDecoration(
+                              labelText: 'Role',
+                              hintText: 'Masukkan Role Baru',
+                              prefixIcon: Icon(Icons.key),
+                              border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10))),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Masukkan Role';
                             }
                             return null;
                           }),

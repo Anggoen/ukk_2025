@@ -1,26 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:ukk_2025/kasir.dart';
+import 'package:ukk_2025/Petugas/kasir.dart';
 
-Future<void> deleteUser( int id, BuildContext context) async {
+Future<void> deletePelanggan(int idPelanggan, BuildContext context) async {
   final supabase = Supabase.instance.client;
 
-  //kode untuk menampilkan dialog konirmasi terlebih dahulu sebelum dihapus
+  // Kode untuk menampilkan dialog konfirmasi terlebih dahulu sebelum benar-benar dihapus
   bool? confirmDelete = await showDialog(
     context: context,
     builder: (context) {
       return AlertDialog(
         elevation: 20,
         backgroundColor: Colors.blue,
-        content: Container(
-          height: 40,
-          width: 50,
-          child: Center(
-            child: Text(
-              'Anda yakin ingin menghapus user ini?',
-              style: TextStyle(fontSize: 24.0, color: Colors.white),
-            ),
-          ),
+        content: Text(
+          'Anda yakin ingin menghapus produk ini?',
+          style: TextStyle(fontSize: 15.0, color: Colors.white),
         ),
         actions: [
           ElevatedButton(
@@ -41,25 +35,21 @@ Future<void> deleteUser( int id, BuildContext context) async {
               'Batal',
               style: TextStyle(color: Colors.blue),
             ),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.white,
-            ),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.white),
           ),
         ],
       );
     },
   );
 
-  // jika user memilih dihapus, maka lakukan perintah penghapusan ini
-  if (confirmDelete == true) {
-    final response =
-     await supabase.from('user').delete().eq('id', id);
+  // Jika user memilih untuk dihapus, maka lakukan perintah penghapusan ini
+  if(confirmDelete == true) {
+    final response = await supabase.from('pelanggan').delete().eq('idPelanggan', idPelanggan);
 
     if (response != null) {
-      print('Hapus error : ${response.error!.messsage}');
+      print('Hapus error : ${response.error!.message}');
     } else {
-      Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (context) => KasirPage()));
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => KasirPetugasPage()));
     }
   }
 }
