@@ -2,30 +2,30 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:ukk_2025/Admin/kasir.dart';
 
-Future<void> deleteProduk(int idProduk, BuildContext anggun) async {
+Future<void> deleteProduk(int idProduk, BuildContext context) async {
   final supabase = Supabase.instance.client;
 
-  //kode untuk menampilkan dialog konfirmasi terlebih dahulu sebelum dihapus dengan alert dialog
+  // Menampilkan dialog konfirmasi sebelum menghapus
   bool? confirmDelete = await showDialog(
-    context: anggun,
-    builder: (anggun) {
+    context: context,
+    builder: (context) {
       return AlertDialog(
         elevation: 20,
         backgroundColor: Colors.blue,
-        content: Container(
-          height: 40,
-          width: 50,
+        content: SizedBox(
+          height: 60, // Sesuaikan ukuran agar teks tidak terpotong
           child: Center(
             child: Text(
               'Anda yakin ingin menghapus produk ini?',
-              style: TextStyle(fontSize: 24.0, color: Colors.white),
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 18.0, color: Colors.white),
             ),
           ),
         ),
         actions: [
           ElevatedButton(
             onPressed: () {
-              Navigator.pop(anggun, true);
+              Navigator.pop(context, true); // Konfirmasi hapus
             },
             child: Text(
               'Hapus',
@@ -35,29 +35,42 @@ Future<void> deleteProduk(int idProduk, BuildContext anggun) async {
           ),
           ElevatedButton(
             onPressed: () {
-              Navigator.of(anggun).pop(false);
+              Navigator.pop(context, false); // Batal
             },
             child: Text(
               'Batal',
               style: TextStyle(color: Colors.blue),
             ),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.white,
-            ),
-          )
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.white),
+          ),
         ],
       );
     },
   );
 
-  //jika user memilih dihapus, maka lakukan perintah pengahpusan ini
-  if(confirmDelete == true) {
-    final response = await supabase.from('produk').delete().eq('idProduk', idProduk);
+  // Jika user menekan tombol "Hapus", lanjutkan proses penghapusan
+  if (confirmDelete == true) {
+    try {
+      await supabase.from('produk').delete().eq('idProduk', idProduk);
 
-    if (response != null) {
-      print('Hapus error : ${response.error!.message}');
-    } else {
-      Navigator.pushReplacement(anggun, MaterialPageRoute(builder: (anggun) => KasirAdminPage()));
+      // Pastikan widget masih aktif sebelum melakukan navigasi
+      if (!context.mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Produk berhasil dihapus')),
+      );
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => KasirAdminPage()),
+      );
+    } catch (error) {
+      // Tangkap error dan tampilkan di Snackbar
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Gagal menghapus produk: $error')),
+        );
+      }
     }
   }
 }

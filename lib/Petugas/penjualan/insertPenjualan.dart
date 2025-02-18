@@ -1,27 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:intl/intl.dart';
-import 'package:ukk_2025/Admin/kasir.dart';
+import 'package:ukk_2025/Petugas/kasir.dart';
 
-class PenjualanAdmin extends StatefulWidget {
-  const PenjualanAdmin({super.key});
+class PenjualanPetugas extends StatefulWidget {
+  const PenjualanPetugas({super.key});
 
   @override
-  State<PenjualanAdmin> createState() => PenjualanAdminState();
+  State<PenjualanPetugas> createState() => _PenjualanPetugasState();
 }
 
-class PenjualanAdminState extends State<PenjualanAdmin> {
+class _PenjualanPetugasState extends State<PenjualanPetugas> {
   final supabase = Supabase.instance.client;
   DateTime currentDate = DateTime.now();
 
   List<Map<String, dynamic>> pelanggan = [];
   List<Map<String, dynamic>> produk = [];
-  Map<String, dynamic>? selectedCustomer;
-  Map<String, dynamic>? selectedProduct;
+  Map<String, dynamic>? pilihPelanggan;
+  Map<String, dynamic>? pilihProduk;
 
   TextEditingController quantityController = TextEditingController();
-  double subtotal = 0;
-  double totalPrice = 0;
+    double subtotal = 0;
+    double totalHarga = 0;
   List<Map<String, dynamic>> cart = [];
 
   @override
@@ -31,7 +31,7 @@ class PenjualanAdminState extends State<PenjualanAdmin> {
     fetchProduk();
   }
 
-  // Mengambil data pelanggan dari Supabase
+  //mengambil data pelanggan dari supabase
   Future<void> fetchPelanggan() async {
     final response = await supabase.from('pelanggan').select();
     setState(() {
@@ -39,7 +39,7 @@ class PenjualanAdminState extends State<PenjualanAdmin> {
     });
   }
 
-  // Mengambil data produk dari Supabase
+  //mengambil data produk dari supabase
   Future<void> fetchProduk() async {
     final response = await supabase.from('produk').select();
     setState(() {
@@ -47,35 +47,33 @@ class PenjualanAdminState extends State<PenjualanAdmin> {
     });
   }
 
-  // Menambahkan produk ke keranjang
+  //menambahkan produk ke keranjang
   void addToCart() {
-    if (selectedProduct != null && quantityController.text.isNotEmpty) {
+    if (pilihProduk != null && quantityController.text.isNotEmpty) {
       int quantity = int.parse(quantityController.text);
-      double price = selectedProduct!['harga'];
+      double price = pilihProduk!['harga'];
       double itemSubtotal = price * quantity;
 
       setState(() {
         cart.add({
-          'idProduk': selectedProduct!['idProduk'],
-          'namaProduk': selectedProduct!['namaProduk'],
+          'idProduk': pilihProduk!['idProduk'],
+          'namaProduk': pilihProduk!['namaProduk'],
           'jumlahProduk': quantity,
-          'subtotal': itemSubtotal,
+          'subtotal': itemSubtotal
         });
-        totalPrice += itemSubtotal;
-        selectedProduct!['stok'] -= quantity;
+        totalHarga += itemSubtotal;
+        pilihProduk!['stok'] -= quantity;
       });
     }
   }
 
-  // Mengirim transaksi penjualan ke database
+  //mengirim transaksi penjualan ke database
   Future<void> submitPenjualan() async {
     try {
       final penjualanResponse = await supabase
           .from('penjualan')
           .insert({
             'tanggalPenjualan': DateFormat('yyyy-MM-dd').format(currentDate),
-            'totalHarga': totalPrice,
-            'idPelanggan': selectedCustomer!['idPelanggan'],
           })
           .select()
           .single();
@@ -91,24 +89,26 @@ class PenjualanAdminState extends State<PenjualanAdmin> {
         });
 
         await supabase.from('produk').update({
-          'stok': selectedProduct!['stok'],
+          'stok': pilihProduk!['stok'],
         }).eq('idProduk', item['idProduk']);
       }
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Transaksi berhasil disimpan')),
       );
+
+      //jadi ketika sudah selesai , maka jalankan perintah cart.clean yg artinya bersihkan data yang baru saja selesai diinput
       setState(() {
         cart.clear();
-        totalPrice = 0;
+        totalHarga = 0;
       });
     } catch (error) {
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text('Terjadi kesalahan: $error')));
-    }
 
-    Navigator.pushReplacement(
-        context, MaterialPageRoute(builder: (context) => KasirAdminPage()));
+      Navigator.pushReplacement(
+          context, MaterialPageRoute(builder: (context) => KasirPetugasPage()));
+    }
   }
 
   @override
@@ -135,11 +135,10 @@ class PenjualanAdminState extends State<PenjualanAdmin> {
             width: 320,
             height: 430,
             child: Padding(
-              padding: const EdgeInsets.all(10.0),
+              padding: EdgeInsets.all(10.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Dropdown untuk memilih pelanggan
                   DropdownButtonFormField(
                     decoration: InputDecoration(
                         labelText: 'Pilih Pelanggan',
@@ -147,18 +146,16 @@ class PenjualanAdminState extends State<PenjualanAdmin> {
                             borderRadius: BorderRadius.circular(10))),
                     items: pelanggan.map((customer) {
                       return DropdownMenuItem(
-                        value: customer,
-                        child: Text(customer['namaPelanggan']),
-                      );
+                          value: customer,
+                          child: Text(customer['namaPelanggan']));
                     }).toList(),
                     onChanged: (value) {
                       setState(() {
-                        selectedCustomer = value as Map<String, dynamic>;
+                        pilihPelanggan = value as Map<String, dynamic>;
                       });
                     },
                   ),
                   SizedBox(height: 16.0),
-                  // Dropdown untuk memilih produk
                   DropdownButtonFormField(
                     decoration: InputDecoration(
                         labelText: 'Pilih Produk',
@@ -172,17 +169,18 @@ class PenjualanAdminState extends State<PenjualanAdmin> {
                     }).toList(),
                     onChanged: (value) {
                       setState(() {
-                        selectedProduct = value as Map<String, dynamic>;
-                        subtotal = selectedProduct!['harga'] *
+                        pilihProduk = value as Map<String, dynamic>;
+                        subtotal = pilihProduk!['harga'] *
                             (quantityController.text.isEmpty
                                 ? 0
                                 : int.parse(quantityController.text));
                       });
                     },
                   ),
-                  SizedBox(height: 16.0),
-                  // Input jumlah produk
-                  TextField(
+                  SizedBox(
+                    height: 16.0,
+                  ),
+                  TextFormField(
                     controller: quantityController,
                     decoration: InputDecoration(
                         labelText: 'Jumlah Produk',
@@ -191,13 +189,12 @@ class PenjualanAdminState extends State<PenjualanAdmin> {
                     keyboardType: TextInputType.number,
                     onChanged: (value) {
                       setState(() {
-                        subtotal = selectedProduct != null
-                            ? selectedProduct!['harga'] * int.parse(value)
+                        subtotal = pilihProduk != null
+                            ? pilihProduk!['harga'] * int.parse(value)
                             : 0;
                       });
                     },
                   ),
-
                   SizedBox(height: 16.0),
                   ElevatedButton(
                     onPressed: addToCart,
@@ -224,7 +221,7 @@ class PenjualanAdminState extends State<PenjualanAdmin> {
                   ),
                   Divider(),
                   Text(
-                    'Total Harga: Rp $totalPrice',
+                    'Total Harga: Rp $totalHarga',
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                   SizedBox(height: 16.0),
@@ -232,11 +229,10 @@ class PenjualanAdminState extends State<PenjualanAdmin> {
                     onPressed: submitPenjualan,
                     child: Text(
                       'Simpan Transaksi',
-                      style: TextStyle(color: Colors.white),
                     ),
                     style:
                         ElevatedButton.styleFrom(backgroundColor: Colors.blue),
-                  ),
+                  )
                 ],
               ),
             ),

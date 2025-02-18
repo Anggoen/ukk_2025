@@ -23,6 +23,8 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       // home: InsertProduk(),
       // home: HalamanAwal(),
+      // home: KasirPetugasPage(),
+      // home: KasirAdminPage(),
       home: KasirAdminPage(),
     );
   }
@@ -43,7 +45,7 @@ class _LoginPageState extends State<HalamanAwal> {
         backgroundColor: Colors.blue,
         // backgroundColor: Color.fromARGB(255, 183, 161, 236),
         title: Text(
-          'Selamat Datang',
+          'Selamat Datang!',
           style: TextStyle(color: Colors.white),
         ),
         centerTitle: true,

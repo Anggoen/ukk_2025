@@ -31,29 +31,28 @@ class _LoginPageState extends State<LoginPage> {
             .eq('role', Role.text)
             .single();
 
-        if (result != null) {
-          String role = result['role'];
+        String role = result['role'];
 
-          if (role == 'Admin') {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => KasirAdminPage(), // Navigate to Admin's home page
-              ),
-            );
-          } else if (role == 'Petugas') {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => KasirPetugasPage(), // Navigate to Petugas's home page
-              ),
-            );
-          }
+        if (role == 'Admin') {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) =>
+                  KasirAdminPage(), // Navigate to Admin's home page
+            ),
+          );
+        } else if (role == 'Petugas') {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) =>
+                  KasirPetugasPage(), // Navigate to Petugas's home page
+            ),
+          );
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Username atau password salah'),
-              backgroundColor: Colors.pinkAccent,
             ),
           );
         }
@@ -62,7 +61,6 @@ class _LoginPageState extends State<LoginPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Terjadi kesalahan, silakan coba lagi.'),
-          backgroundColor: Colors.pinkAccent,
         ),
       );
     }
@@ -140,7 +138,8 @@ class _LoginPageState extends State<LoginPage> {
                                           hintText: 'Masukkan Username kamu',
                                           prefixIcon: Icon(Icons.people),
                                           border: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(20),
+                                            borderRadius:
+                                                BorderRadius.circular(20),
                                           ),
                                         ),
                                         validator: (value) {
@@ -161,7 +160,8 @@ class _LoginPageState extends State<LoginPage> {
                                           hintText: 'Masukkan Password kamu',
                                           prefixIcon: Icon(Icons.key),
                                           border: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(20),
+                                            borderRadius:
+                                                BorderRadius.circular(20),
                                           ),
                                         ),
                                         validator: (value) {
@@ -179,9 +179,10 @@ class _LoginPageState extends State<LoginPage> {
                                         decoration: InputDecoration(
                                           labelText: 'Role',
                                           hintText: 'Masukkan Role kamu',
-                                          prefixIcon: Icon(Icons.key),
+                                          prefixIcon: Icon(Icons.circle),
                                           border: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(20),
+                                            borderRadius:
+                                                BorderRadius.circular(20),
                                           ),
                                         ),
                                         validator: (value) {
@@ -197,7 +198,9 @@ class _LoginPageState extends State<LoginPage> {
                                       ElevatedButton(
                                         onPressed: () {
                                           // Cek validitas form sebelum memanggil Login
-                                          if (_formKey.currentState?.validate() ?? false) {
+                                          if (_formKey.currentState
+                                                  ?.validate() ??
+                                              false) {
                                             Login(); // Panggil fungsi login jika valid
                                           }
                                         },

@@ -15,7 +15,6 @@ class _InsertProdukState extends State<InsertProduk> {
   final TextEditingController _hargaProduk = TextEditingController();
   final TextEditingController _stokProduk = TextEditingController();
 
-
   Future<void> _tambahProduk() async {
     if (!_formKey.currentState!.validate()) {
       return;
@@ -84,7 +83,9 @@ class _InsertProdukState extends State<InsertProduk> {
                     borderRadius: BorderRadius.circular(10),
                     boxShadow: [
                       BoxShadow(
-                          color: Colors.grey, blurRadius: 7, offset: Offset(0, 3))
+                          color: Colors.grey,
+                          blurRadius: 7,
+                          offset: Offset(0, 3))
                     ]),
                 width: 300,
                 height: 350,
@@ -104,13 +105,14 @@ class _InsertProdukState extends State<InsertProduk> {
                                     hintText: 'Masukkan Produk',
                                     prefixIcon: Icon(Icons.abc),
                                     border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(10))),
-                                        validator: (value) {
-                                          if(value == null || value.isEmpty) {
-                                            return 'Masukkan Nama Produk';
-                                          } 
-                                           return null;
-                                        },
+                                        borderRadius:
+                                            BorderRadius.circular(10))),
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'Masukkan Nama Produk';
+                                  }
+                                  return null;
+                                },
                               ),
                               SizedBox(height: 10),
                               TextFormField(
@@ -120,7 +122,8 @@ class _InsertProdukState extends State<InsertProduk> {
                                     hintText: 'Masukkan Harga Produk',
                                     prefixIcon: Icon(Icons.money),
                                     border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(10))),
+                                        borderRadius:
+                                            BorderRadius.circular(10))),
                                 validator: (value) {
                                   if (value == null || value.isEmpty) {
                                     return "Masukkan Harga Produk";
@@ -140,7 +143,8 @@ class _InsertProdukState extends State<InsertProduk> {
                                     hintText: 'Masukkan Stok Produk',
                                     prefixIcon: Icon(Icons.circle),
                                     border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(10))),
+                                        borderRadius:
+                                            BorderRadius.circular(10))),
                                 validator: (value) {
                                   if (value == null || value.isEmpty) {
                                     return "Masukkan Stok Produk";
@@ -155,8 +159,10 @@ class _InsertProdukState extends State<InsertProduk> {
                               SizedBox(height: 20.0),
                               ElevatedButton(
                                 onPressed: () {
-                                  if (_formKey.currentState!.validate())
+                                  if (_formKey.currentState?.validate() ??
+                                      false) {
                                     _tambahProduk();
+                                  }
                                 },
                                 child: Text(
                                   'Tambah',

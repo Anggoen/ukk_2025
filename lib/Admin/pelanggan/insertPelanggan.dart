@@ -25,7 +25,7 @@ class _InsertPelangganState extends State<InsertPelanggan> {
   }
 
   // cek apakah produk  sudah ada
-  
+
   Future<void> _tambahPelanggan() async {
     if (!_formKey.currentState!.validate()) {
       return;
@@ -151,6 +151,10 @@ class _InsertPelangganState extends State<InsertPelanggan> {
                               validator: (anggun) {
                                 if (anggun == null || anggun.isEmpty) {
                                   return 'Masukkan Nomor Telepon';
+                                } else {
+                                  if (double.tryParse(anggun) == null) {
+                                    return "Harga harus berupa angka";
+                                  }
                                 }
                                 return null;
                               },

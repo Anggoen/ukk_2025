@@ -3,6 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:ukk_2025/Petugas/pelanggan/deletePelanggan.dart';
 import 'package:ukk_2025/Petugas/pelanggan/editPelanggan.dart';
 import 'package:ukk_2025/Petugas/pelanggan/insertPelanggan.dart';
+import 'package:ukk_2025/Petugas/penjualan/insertPenjualan.dart';
 import 'package:ukk_2025/Petugas/produk/deleteProduk.dart';
 import 'package:ukk_2025/Petugas/produk/editProduk.dart';
 import 'package:ukk_2025/Petugas/produk/insertProduk.dart';
@@ -38,9 +39,9 @@ class _KasirFlutterState extends State<KasirFlutter> {
   final List<Widget> _pages = [
     ProdukPage(),
     PelangganPage(),
-    PenjualanPage(),
-    DetailPenjualan(),
-    ProfilePetugas(),
+    PenjualanPetugasPage(),
+    DetailPenjualanPetugasPage(),
+    ProfilePetugasAd(),
   ];
 
   void _onItemTapped(int index) {
@@ -67,7 +68,8 @@ class _KasirFlutterState extends State<KasirFlutter> {
             BottomNavigationBarItem(
                 icon: Icon(Icons.shopping_cart), label: 'Penjualan'),
             BottomNavigationBarItem(icon: Icon(Icons.note), label: 'Detail'),
-            BottomNavigationBarItem(icon: Icon(Icons.person_2), label: 'Profile')
+            BottomNavigationBarItem(
+                icon: Icon(Icons.person_2), label: 'Profile')
           ]),
     );
   }
@@ -212,6 +214,7 @@ class PelangganPage extends StatefulWidget {
 }
 
 class _PelangganPageState extends State<PelangganPage> {
+  // TextEditingController _search = TextEditingController();
   List<Map<String, dynamic>> pelangganAnggun = [];
 
   @override
@@ -341,46 +344,304 @@ class _PelangganPageState extends State<PelangganPage> {
 }
 
 //halaman penjualan
-class PenjualanPage extends StatefulWidget {
-  const PenjualanPage({super.key});
+class PenjualanPetugasPage extends StatefulWidget {
+  const PenjualanPetugasPage({super.key});
 
   @override
-  State<PenjualanPage> createState() => _PenjualanPageState();
+  State<PenjualanPetugasPage> createState() => _PenjualanPetugasPageState();
 }
 
-class _PenjualanPageState extends State<PenjualanPage> {
+class _PenjualanPetugasPageState extends State<PenjualanPetugasPage> {
+  List<Map<String, dynamic>> penjualand = [];
+
+  @override
+  void initState() {
+    super.initState();
+    fetchPenjualand();
+  }
+
+  Future<void> fetchPenjualand() async {
+    try {
+      final response = await Supabase.instance.client
+          .from('penjualan')
+          .select('*,pelanggan(*)');
+      setState(() {
+        penjualand = List<Map<String, dynamic>>.from(response ?? []);
+      });
+    } catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Gagal memuat data pelanggan: $error')),
+      );
+    }
+  }
+
+  //fungsi untuk menghapus data penjualan berdasarkan id
+  Future<void> _deletePenjualann(int id) async {
+    try {
+      final supabase = Supabase.instance.client;
+      await supabase.from('detailPenjualan').delete().eq('idPenjualan', id);
+      await supabase.from('penjualan').delete().eq('idPenjualan', id);
+      fetchPenjualand();
+    } catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Gagal memuat penjualan: $error')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          'Halaman Penjualan',
+          style: TextStyle(color: Colors.white),
+        ),
+        centerTitle: true,
+        backgroundColor: Colors.blue,
+        actions: [
+          IconButton(
+            onPressed: fetchPenjualand,
+            icon: Icon(Icons.refresh),
+            color: Colors.white,
+            splashColor: Colors.yellow,
+          )
+        ],
+      ),
+      body: penjualand.isEmpty
+          ? Center(child: CircularProgressIndicator())
+          : ListView.builder(
+              itemCount: penjualand.length,
+              itemBuilder: (context, index) {
+                final penjualans = penjualand[index];
+
+                return Container(
+                  margin: EdgeInsets.all(10.0),
+                  decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(15.0),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey,
+                          blurRadius: 7,
+                          offset: Offset(0, 3),
+                        )
+                      ]),
+                  child: ListTile(
+                    title: Text(
+                      'Total Harga: Rp ${penjualans['totalHarga'] ?? 'Total Harga tidak ditemukan'}',
+                      style: TextStyle(fontSize: 14),
+                    ),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                            'Nama: ${penjualans['pelanggan']['namaPelanggan']}'),
+                        SizedBox(
+                            height:
+                                5), // Tambahkan jarak agar teks tidak menempel
+                        Text(
+                          'Tanggal: ${penjualans['tanggalPenjualan'] ?? 'Tanggal tidak tersedia'}',
+                          style: TextStyle(fontSize: 14),
+                        ),
+                      ],
+                    ),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                            onPressed: () =>
+                                _deletePenjualann(penjualans['idPenjualan']),
+                            icon: Icon(Icons.delete))
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+      floatingActionButton: Padding(
+        padding: EdgeInsets.all(16.0),
+        child: ElevatedButton(
+          onPressed: () async {
+            final result = await Navigator.push(context,
+                MaterialPageRoute(builder: (context) => PenjualanPetugas()));
+
+            if (result == true) {
+              fetchPenjualand();
+            }
+          },
+          style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.blue,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
+              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15)),
+          child: Row(mainAxisSize: MainAxisSize.min, children: [
+            Icon(
+              Icons.add,
+              color: Colors.white,
+            )
+          ]),
+        ),
+      ),
+    );
   }
 }
 
 // halaman detail
-class DetailPenjualan extends StatefulWidget {
-  const DetailPenjualan({super.key});
+class DetailPenjualanPetugasPage extends StatefulWidget {
+  const DetailPenjualanPetugasPage({super.key});
 
   @override
-  State<DetailPenjualan> createState() => _DetailPenjualanState();
+  State<DetailPenjualanPetugasPage> createState() =>
+      _DetailPenjualanPetugasPage();
 }
 
-class _DetailPenjualanState extends State<DetailPenjualan> {
+class _DetailPenjualanPetugasPage extends State<DetailPenjualanPetugasPage> {
+  List<Map<String, dynamic>> detail_penjualan = [];
+  List<Map<String, dynamic>> penjualans = [];
+
+  @override
+  void initState() {
+    super.initState();
+    fetchDetailPenjualan();
+  }
+
+  Future<void> fetchDetailPenjualan() async {
+    try {
+      final response = await Supabase.instance.client
+          .from('detailPenjualan')
+          .select('*,penjualan(*,pelanggan(*)),produk(*)');
+
+      setState(() {
+        detail_penjualan = List<Map<String, dynamic>>.from(response);
+      });
+    } catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Gagal memuat data penjualan: $error'),
+        ),
+      );
+    }
+  }
+
+  Future<void> _deletePenjualan(int id) async {
+    try {
+      await Supabase.instance.client
+          .from('detailPenjualan')
+          .delete()
+          .eq('idDetail', id);
+
+      fetchDetailPenjualan();
+    } catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Gagal menghapus penjualan: $error'),
+        ),
+      );
+    }
+  }
+
+  Future<String> _getnamaproduk(int Produkid) async {
+    try {
+      final response = await Supabase.instance.client
+          .from('produk')
+          .select('namaProduk')
+          .eq('idProduk', Produkid)
+          .maybeSingle();
+
+      if (response != null && response['namaProduk'] != null) {
+        return response['namaProduk'];
+      }
+      return 'Nama Produk tidak ditemukan';
+    } catch (error) {
+      return 'Error: $error';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Halaman Detail Penjualan',
+            style: TextStyle(color: Colors.white)),
+        backgroundColor: Colors.blue,
+        actions: [
+          IconButton(
+            onPressed: fetchDetailPenjualan,
+            icon: Icon(Icons.refresh),
+            color: Colors.white,
+          )
+        ],
+      ),
+      body: detail_penjualan.isEmpty
+          ? Center(child: CircularProgressIndicator())
+          : ListView.builder(
+              itemCount: detail_penjualan.length,
+              itemBuilder: (context, index) {
+                final detail_penjualans = detail_penjualan[index];
+                return Container(
+                  margin: EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(15),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey,
+                          blurRadius: 7,
+                          offset: Offset(0, 3),
+                        )
+                      ]),
+                  child: ListTile(
+                    title: Text(
+                      'Nama: ${detail_penjualans['penjualan']['pelanggan']['namaPelanggan']}',
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                    ),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Nama Produk: ${detail_penjualans['produk']['namaProduk']}',
+                          style: TextStyle(fontSize: 14),
+                        ),
+                        Text(
+                          'Jumlah Produk: ${detail_penjualans['jumlahProduk'] ?? 'Jumlah Produk tidak tersedia'}',
+                          style: TextStyle(fontSize: 12),
+                        ),
+                        Text(
+                          'Subtotal : Rp ${detail_penjualans['subtotal'] ?? 'Subtotal tidak tersedia'}',
+                          style: TextStyle(fontSize: 10),
+                        ),
+                      ],
+                    ),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          onPressed: () => _deletePenjualan(
+                              detail_penjualans['idPenjualan']),
+                          icon: Icon(Icons.delete),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+    );
   }
 }
 
-
 // Halaman untuk Profile
-class ProfilePetugas extends StatelessWidget {
-  const ProfilePetugas({super.key});
+class ProfilePetugasAd extends StatelessWidget {
+  const ProfilePetugasAd({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
           title: Text(
-            'Profile',
+            'Profile (Petugas)',
             style: TextStyle(color: Colors.white),
           ),
           centerTitle: true,
@@ -436,9 +697,7 @@ class ProfilePetugas extends StatelessWidget {
                 Navigator.pushReplacement(context,
                     MaterialPageRoute(builder: (context) => LoginPage()));
               },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue
-              ),
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
               child: Text(
                 'LogOut',
                 style: TextStyle(color: Colors.white),
