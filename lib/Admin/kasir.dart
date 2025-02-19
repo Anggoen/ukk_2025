@@ -11,6 +11,10 @@ import 'package:ukk_2025/Admin/user/deleteUser.dart';
 import 'package:ukk_2025/Admin/user/editUser.dart';
 import 'package:ukk_2025/Admin/user/insertUser.dart';
 import 'package:ukk_2025/login.dart';
+import 'package:intl/intl.dart';
+import 'package:ukk_2025/Admin/penjualan/strukPrinter.dart';
+import 'package:pdf/pdf.dart';
+import 'package:printing/printing.dart';
 
 void main() {
   runApp(KasirAdminPage());
@@ -66,7 +70,8 @@ class _KasirFlutterState extends State<KasirFlutter> {
           unselectedItemColor: Colors.blue,
           onTap: _onItemTapped,
           items: <BottomNavigationBarItem>[
-            BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.check_box_outline_blank), label: 'Produk'),
             BottomNavigationBarItem(
                 icon: Icon(Icons.people), label: 'Pelanggan'),
             BottomNavigationBarItem(
@@ -81,6 +86,7 @@ class _KasirFlutterState extends State<KasirFlutter> {
 }
 
 // halaman produk
+
 class ProdukPage extends StatefulWidget {
   const ProdukPage({super.key});
 
@@ -89,13 +95,15 @@ class ProdukPage extends StatefulWidget {
 }
 
 class _ProdukPageState extends State<ProdukPage> {
-
   List<Map<String, dynamic>> produkAnggun = [];
+  List<Map<String, dynamic>> filteredProduk = [];
+  TextEditingController searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     fetchproduk();
+    searchController.addListener(_filterProduk);
   }
 
   Future<void> fetchproduk() async {
@@ -103,15 +111,36 @@ class _ProdukPageState extends State<ProdukPage> {
 
     setState(() {
       produkAnggun = List<Map<String, dynamic>>.from(anggoen);
+      filteredProduk = produkAnggun;
     });
+  }
+
+  void _filterProduk() {
+    String query = searchController.text.toLowerCase();
+    setState(() {
+      filteredProduk = produkAnggun
+          .where((produk) =>
+              produk['namaProduk'].toString().toLowerCase().contains(query))
+          .toList();
+    });
+  }
+
+  String formatCurrency(int amount) {
+    final formatter = NumberFormat('#,###', 'id_ID');
+    return formatter.format(amount).replaceAll(',', '.');
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'Halaman Produk',
+        title: TextField(
+          controller: searchController,
+          decoration: InputDecoration(
+            hintText: 'Cari Produk...',
+            border: InputBorder.none,
+            hintStyle: TextStyle(color: Colors.white70),
+          ),
           style: TextStyle(color: Colors.white),
         ),
         centerTitle: true,
@@ -120,70 +149,65 @@ class _ProdukPageState extends State<ProdukPage> {
           IconButton(
               onPressed: fetchproduk,
               icon: Icon(Icons.refresh),
-              color: Colors.white,),
+              color: Colors.white),
         ],
-        leading:IconButton(onPressed: () {}, icon: Icon(Icons.search), color: Colors.white,)
       ),
-      body: produkAnggun.isEmpty
+      body: filteredProduk.isEmpty
           ? Center(child: CircularProgressIndicator())
           : ListView.builder(
-              itemCount: produkAnggun.length,
+              itemCount: filteredProduk.length,
               itemBuilder: (context, index) {
-                final book = produkAnggun[index];
-                return Column(
-                  children: [ 
-                    Container(
-                      margin: EdgeInsets.all(10.0),
-                      decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(15.0),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.grey,
-                              blurRadius: 7,
-                              offset: Offset(0, 3),
-                            )
-                          ]),
-                      child: ListTile(
-                        title: Text(
-                          book['namaProduk'] ?? 'No namaProduk',
-                          style: TextStyle(fontSize: 16),
-                        ),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Rp. ${book['harga']}',
-                              style: TextStyle(fontSize: 14),
-                            ),
-                            Text(
-                              'Stok: ${book['stok']}',
-                              style: TextStyle(fontSize: 10),
-                            ),
-                          ],
-                        ),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            IconButton(
-                                onPressed: () {
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) =>
-                                              EditProdukPage(produk: book)));
-                                },
-                                icon: Icon(Icons.edit, color: Colors.blue)),
-                            IconButton(
-                                onPressed: () {
-                                  deleteProduk(book['idProduk'], context);
-                                },
-                                icon: Icon(Icons.delete))
-                          ],
-                        ),
-                      ),
+                final book = filteredProduk[index];
+                return Container(
+                  margin: EdgeInsets.all(10.0),
+                  decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(15.0),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey,
+                          blurRadius: 7,
+                          offset: Offset(0, 3),
+                        )
+                      ]),
+                  child: ListTile(
+                    title: Text(
+                      book['namaProduk'] ?? 'No namaProduk',
+                      style: TextStyle(fontSize: 16),
                     ),
-                  ],
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Rp. ${formatCurrency(book['harga'])}',
+                          style: TextStyle(fontSize: 14),
+                        ),
+                        Text(
+                          'Stok: ${book['stok']}',
+                          style: TextStyle(fontSize: 10),
+                        ),
+                      ],
+                    ),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                            onPressed: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          EditProdukPage(produk: book)));
+                            },
+                            icon: Icon(Icons.edit, color: Colors.blue)),
+                        IconButton(
+                            onPressed: () {
+                              deleteProduk(book['idProduk'], context);
+                            },
+                            icon: Icon(Icons.delete))
+                      ],
+                    ),
+                  ),
                 );
               }),
       floatingActionButton: Padding(
@@ -193,7 +217,7 @@ class _ProdukPageState extends State<ProdukPage> {
             final result = await Navigator.push(context,
                 MaterialPageRoute(builder: (context) => InsertProduk()));
 
-            // jika result true maka refresh halaman prduk dengan kode berikut
+            // jika result true maka refresh halaman produk dengan kode berikut
             if (result == true) {
               fetchproduk();
             }
@@ -376,13 +400,18 @@ class _PenjualanAdminPageState extends State<PenjualanAdminPage> {
           .from('penjualan')
           .select('*,pelanggan(*)');
       setState(() {
-        penjualand = List<Map<String, dynamic>>.from(response ?? []) ;
+        penjualand = List<Map<String, dynamic>>.from(response ?? []);
       });
     } catch (error) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Gagal memuat data penjualan: $error')),
       );
     }
+  }
+
+  String formatCurrency(int amount) {
+    final formatter = NumberFormat('#,###', 'id_ID');
+    return formatter.format(amount).replaceAll(',', '.');
   }
 
   //fungsi untuk menghapus data penjualan berdasarkan id
@@ -411,7 +440,6 @@ class _PenjualanAdminPageState extends State<PenjualanAdminPage> {
         title: Text(
           'Halaman Penjualan',
           style: TextStyle(color: Colors.white),
-          
         ),
         centerTitle: true,
         backgroundColor: Colors.blue,
@@ -444,22 +472,20 @@ class _PenjualanAdminPageState extends State<PenjualanAdminPage> {
                     ],
                   ),
                   child: ListTile(
-                    title:  Text(
-                          'Total Harga: Rp ${penjualans['totalHarga'] ?? 'Total harga tidak ditemukan'}',
-                          style: TextStyle(fontSize: 14),
-                        ),
+                    title: Text(
+                      'Total Harga: Rp ${penjualans['totalHarga'] != null ? formatCurrency(penjualans['totalHarga']) : 'Total harga tidak ditemukan'}',
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
                     subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                      'Tanggal: ${penjualans['tanggalPenjualan'] ?? 'Tanggal Tidak ditemukan' }',
-                        
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-                    ),
-                       
-                        Text(
                             'Nama: ${penjualans['pelanggan']['namaPelanggan']}'),
+                        Text(
+                          'Tanggal: ${penjualans['tanggalPenjualan'] ?? 'Tanggal Tidak ditemukan'}',
+                          style: TextStyle(fontSize: 12),
+                        ),
                       ],
                     ),
                     trailing: Row(
@@ -529,7 +555,7 @@ class _DetailPenjualanAdminPageState extends State<DetailPenjualanAdminPage> {
           .select('*,penjualan(*,pelanggan(*)),produk(*)');
 
       setState(() {
-        detail_penjualan = List<Map<String, dynamic>>.from(response); 
+        detail_penjualan = List<Map<String, dynamic>>.from(response);
       });
     } catch (error) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -557,6 +583,12 @@ class _DetailPenjualanAdminPageState extends State<DetailPenjualanAdminPage> {
     }
   }
 
+// ini kode untuk membuat harga otomatis ada titik nya contoh Rp. 40.000.000 tidak polosan seperti Rp.40000
+  String formatCurrency(int amount) {
+    final formatter = NumberFormat('#,###', 'id_ID');
+    return formatter.format(amount).replaceAll(',', '.');
+  }
+
   Future<String> _getnamaproduk(int Produkid) async {
     try {
       final response = await Supabase.instance.client
@@ -578,11 +610,18 @@ class _DetailPenjualanAdminPageState extends State<DetailPenjualanAdminPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Detail Penjualan', style: TextStyle(color: Colors.white),),
+        title: Text(
+          'Detail Penjualan',
+          style: TextStyle(color: Colors.white),
+        ),
         centerTitle: true,
         backgroundColor: Colors.blue,
         actions: [
-          IconButton(onPressed: fetchDetailPenjualan, icon: Icon(Icons.refresh), color: Colors.white,)
+          IconButton(
+            onPressed: fetchDetailPenjualan,
+            icon: Icon(Icons.refresh),
+            color: Colors.white,
+          )
         ],
       ),
       body: detail_penjualan.isEmpty
@@ -605,9 +644,11 @@ class _DetailPenjualanAdminPageState extends State<DetailPenjualanAdminPage> {
                       ]),
                   child: ListTile(
                     title: Text(
-                      'Nama: ${detail_penjualans['penjualan']['pelanggan']['namaPelanggan']}',
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                      'Subtotal : Rp ${detail_penjualans['subtotal'] != null ? formatCurrency(detail_penjualans['subtotal']) : 'Subtotal tidak tersedia'}',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -621,21 +662,20 @@ class _DetailPenjualanAdminPageState extends State<DetailPenjualanAdminPage> {
                           style: TextStyle(fontSize: 12),
                         ),
                         Text(
-                          'Subtotal : Rp ${detail_penjualans['subtotal'] ?? 'Subtotal tidak tersedia'}',
-                          style: TextStyle(fontSize: 10),
+                          'Nama: ${detail_penjualans['penjualan']['pelanggan']['namaPelanggan']}',
+                          style: TextStyle(fontSize: 13),
                         ),
                       ],
-                    ),
-                    trailing: Row(
+                      ),
+                  trailing: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        IconButton(onPressed: (){}, icon: Icon(Icons.print)),
-                        
-                        IconButton(
-                          onPressed: () => _deletePenjualan(
-                              detail_penjualans['idPenjualan']),
-                          icon: Icon(Icons.delete),
-                        ),
+                        TextButton(
+                          onPressed: ()  {
+                            Navigator.push(context, MaterialPageRoute(builder: (contex) => StrukPenjualan(idPenjualan: ['idPenjualan'].toString())));
+                          },
+                            child: Text('Cetak Struk'))
+                        // IconButton(onPressed: () => StrukPenjualan(penjualanID: 'id',), icon: Icon(Icons.print)),
                       ],
                     ),
                   ),

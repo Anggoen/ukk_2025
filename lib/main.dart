@@ -23,8 +23,8 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       // home: InsertProduk(),
       // home: HalamanAwal(),
-      // home: KasirPetugasPage(),
-      // home: KasirAdminPage(),
+      // home: KasirPetugasPage()
+
       home: KasirAdminPage(),
     );
   }

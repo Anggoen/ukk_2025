@@ -62,7 +62,7 @@ class _KasirFlutterState extends State<KasirFlutter> {
           unselectedItemColor: Colors.blue,
           onTap: _onItemTapped,
           items: <BottomNavigationBarItem>[
-            BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+            BottomNavigationBarItem(icon: Icon(Icons.check_box_outline_blank), label: 'Produk'),
             BottomNavigationBarItem(
                 icon: Icon(Icons.people), label: 'Pelanggan'),
             BottomNavigationBarItem(
@@ -76,6 +76,7 @@ class _KasirFlutterState extends State<KasirFlutter> {
 }
 
 // halaman produk
+
 class ProdukPage extends StatefulWidget {
   const ProdukPage({super.key});
 
@@ -85,11 +86,14 @@ class ProdukPage extends StatefulWidget {
 
 class _ProdukPageState extends State<ProdukPage> {
   List<Map<String, dynamic>> produkAnggun = [];
+  List<Map<String, dynamic>> filteredProduk = [];
+  TextEditingController searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     fetchproduk();
+    searchController.addListener(_filterProduk);
   }
 
   Future<void> fetchproduk() async {
@@ -97,6 +101,17 @@ class _ProdukPageState extends State<ProdukPage> {
 
     setState(() {
       produkAnggun = List<Map<String, dynamic>>.from(anggoen);
+      filteredProduk = produkAnggun;
+    });
+  }
+
+  void _filterProduk() {
+    String query = searchController.text.toLowerCase();
+    setState(() {
+      filteredProduk = produkAnggun
+          .where((produk) =>
+              produk['namaProduk'].toString().toLowerCase().contains(query))
+          .toList();
     });
   }
 
@@ -104,8 +119,13 @@ class _ProdukPageState extends State<ProdukPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'Halaman Produk',
+        title: TextField(
+          controller: searchController,
+          decoration: InputDecoration(
+            hintText: 'Cari Produk...',
+            border: InputBorder.none,
+            hintStyle: TextStyle(color: Colors.white70),
+          ),
           style: TextStyle(color: Colors.white),
         ),
         centerTitle: true,
@@ -117,12 +137,12 @@ class _ProdukPageState extends State<ProdukPage> {
               color: Colors.white),
         ],
       ),
-      body: produkAnggun.isEmpty
+      body: filteredProduk.isEmpty
           ? Center(child: CircularProgressIndicator())
           : ListView.builder(
-              itemCount: produkAnggun.length,
+              itemCount: filteredProduk.length,
               itemBuilder: (context, index) {
-                final book = produkAnggun[index];
+                final book = filteredProduk[index];
                 return Container(
                   margin: EdgeInsets.all(10.0),
                   decoration: BoxDecoration(
@@ -182,7 +202,7 @@ class _ProdukPageState extends State<ProdukPage> {
             final result = await Navigator.push(context,
                 MaterialPageRoute(builder: (context) => InsertProduk()));
 
-            // jika result true maka refresh halaman prduk dengan kode berikut
+            // jika result true maka refresh halaman produk dengan kode berikut
             if (result == true) {
               fetchproduk();
             }
@@ -430,7 +450,8 @@ class _PenjualanPetugasPageState extends State<PenjualanPetugasPage> {
                   child: ListTile(
                     title: Text(
                       'Total Harga: Rp ${penjualans['totalHarga'] ?? 'Total Harga tidak ditemukan'}',
-                      style: TextStyle(fontSize: 14),
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                     subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -442,7 +463,7 @@ class _PenjualanPetugasPageState extends State<PenjualanPetugasPage> {
                                 5), // Tambahkan jarak agar teks tidak menempel
                         Text(
                           'Tanggal: ${penjualans['tanggalPenjualan'] ?? 'Tanggal tidak tersedia'}',
-                          style: TextStyle(fontSize: 14),
+                          style: TextStyle(fontSize: 12),
                         ),
                       ],
                     ),
@@ -572,6 +593,7 @@ class _DetailPenjualanPetugasPage extends State<DetailPenjualanPetugasPage> {
             color: Colors.white,
           )
         ],
+        centerTitle: true,
       ),
       body: detail_penjualan.isEmpty
           ? Center(child: CircularProgressIndicator())
@@ -593,9 +615,11 @@ class _DetailPenjualanPetugasPage extends State<DetailPenjualanPetugasPage> {
                       ]),
                   child: ListTile(
                     title: Text(
-                      'Nama: ${detail_penjualans['penjualan']['pelanggan']['namaPelanggan']}',
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                      'Subtotal : Rp ${detail_penjualans['subtotal'] ?? 'Subtotal tidak tersedia'}',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -609,8 +633,8 @@ class _DetailPenjualanPetugasPage extends State<DetailPenjualanPetugasPage> {
                           style: TextStyle(fontSize: 12),
                         ),
                         Text(
-                          'Subtotal : Rp ${detail_penjualans['subtotal'] ?? 'Subtotal tidak tersedia'}',
-                          style: TextStyle(fontSize: 10),
+                          'Nama: ${detail_penjualans['penjualan']['pelanggan']['namaPelanggan']}',
+                          style: TextStyle(fontSize: 12),
                         ),
                       ],
                     ),
@@ -618,9 +642,10 @@ class _DetailPenjualanPetugasPage extends State<DetailPenjualanPetugasPage> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         IconButton(
-                          onPressed: () => _deletePenjualan(
-                              detail_penjualans['idPenjualan']),
-                          icon: Icon(Icons.delete),
+                          onPressed: (){} , icon: Icon(Icons.print),
+                        //   onPressed: () => _deletePenjualan(
+                        //       detail_penjualans['idPenjualan']),
+                        //   icon: Icon(Icons.delete),
                         ),
                       ],
                     ),

@@ -47,6 +47,11 @@ class PenjualanAdminState extends State<PenjualanAdmin> {
     });
   }
 
+  String formatCurrency(int amount) {
+    final formatter = NumberFormat('#,###', 'id_ID');
+    return formatter.format(amount).replaceAll(',', '.');
+  }
+
   // Menambahkan produk ke keranjang
   void addToCart() {
     if (selectedProduct != null && quantityController.text.isNotEmpty) {
@@ -73,7 +78,7 @@ class PenjualanAdminState extends State<PenjualanAdmin> {
       final penjualanResponse = await supabase
           .from('penjualan')
           .insert({
-            'tanggalPenjualan': DateFormat('yyyy-MM-dd').format(currentDate),
+            'tanggalPenjualan': DateFormat('dd MMMM yyyy').format(currentDate),
             'totalHarga': totalPrice,
             'idPelanggan': selectedCustomer!['idPelanggan'],
           })
@@ -223,10 +228,8 @@ class PenjualanAdminState extends State<PenjualanAdmin> {
                     ),
                   ),
                   Divider(),
-                  Text(
-                    'Total Harga: Rp $totalPrice',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
+                  Text('Total Harga: Rp ${formatCurrency(totalPrice.toInt())}',
+                      style: TextStyle(fontWeight: FontWeight.bold)),
                   SizedBox(height: 16.0),
                   ElevatedButton(
                     onPressed: submitPenjualan,

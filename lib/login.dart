@@ -16,39 +16,43 @@ class _LoginPageState extends State<LoginPage> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController Username = TextEditingController();
   final TextEditingController Password = TextEditingController();
-  final TextEditingController Role = TextEditingController();
 
   // Login function
-  Login() async {
+  Future<void> Login() async {
     try {
       if (_formKey.currentState?.validate() ?? false) {
-        // Query Supabase to check if the username and password match any entry in the database
+        // Query Supabase untuk mendapatkan user berdasarkan username dan password
         var result = await Supabase.instance.client
             .from('user')
             .select()
             .eq('username', Username.text)
             .eq('password', Password.text)
-            .eq('role', Role.text)
             .single();
 
-        String role = result['role'];
+        if (result != null) {
+          String role = result['role']; // Ambil role dari database
 
-        if (role == 'Admin') {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) =>
-                  KasirAdminPage(), // Navigate to Admin's home page
-            ),
-          );
-        } else if (role == 'Petugas') {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) =>
-                  KasirPetugasPage(), // Navigate to Petugas's home page
-            ),
-          );
+          if (role == 'Admin') {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => KasirAdminPage(), // Halaman Admin
+              ),
+            );
+          } else if (role == 'Petugas') {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => KasirPetugasPage(), // Halaman Petugas
+              ),
+            );
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Role tidak dikenali'),
+              ),
+            );
+          }
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -99,7 +103,7 @@ class _LoginPageState extends State<LoginPage> {
                   child: Center(
                     child: Container(
                       width: 600,
-                      height: 350,
+                      height: 300,
                       decoration: BoxDecoration(
                         boxShadow: [
                           BoxShadow(
@@ -171,33 +175,9 @@ class _LoginPageState extends State<LoginPage> {
                                           return null;
                                         },
                                       ),
-                                      const SizedBox(height: 10.0),
-                                      TextFormField(
-                                        controller: Role,
-                                        textAlign: TextAlign.start,
-                                        maxLines: 1,
-                                        decoration: InputDecoration(
-                                          labelText: 'Role',
-                                          hintText: 'Masukkan Role kamu',
-                                          prefixIcon: Icon(Icons.circle),
-                                          border: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(20),
-                                          ),
-                                        ),
-                                        validator: (value) {
-                                          if (value == null || value.isEmpty) {
-                                            return "Role Kosong";
-                                          }
-                                          return null;
-                                        },
-                                      ),
-                                      SizedBox(
-                                        height: 20.0,
-                                      ),
+                                      SizedBox(height: 20.0),
                                       ElevatedButton(
                                         onPressed: () {
-                                          // Cek validitas form sebelum memanggil Login
                                           if (_formKey.currentState
                                                   ?.validate() ??
                                               false) {

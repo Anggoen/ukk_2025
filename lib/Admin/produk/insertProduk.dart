@@ -26,7 +26,7 @@ class _InsertProdukState extends State<InsertProduk> {
   }
 
   // Fungsi untuk menambah produk
-  Future<void> _tambahProduk() async {
+  Future<void> _tambahProdukAdmin() async {
     final namaProduk = _namaProduk.text;
     final harga = _hargaProduk.text;
     final stok = _stokProduk.text;
@@ -181,7 +181,7 @@ class _InsertProdukState extends State<InsertProduk> {
                             ElevatedButton(
                               onPressed: () {
                                 if (_formKey.currentState!.validate()) {
-                                  _tambahProduk();
+                                  _tambahProdukAdmin();
                                 }
                               },
                               child: Text(
